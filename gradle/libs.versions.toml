@@ -1,33 +1,55 @@
 [versions]
 agp = "8.5.2"
-hiltAndroid = "2.51.1"
+hilt-version = "2.51.1"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+#Ktor
 ktorClientContentNegotiation = "3.0.0"
 ktorClientCore = "3.0.0"
 ktorClientLogging = "3.0.0"
 ktorClientOkhttp = "3.0.0"
+ktor-auth = "3.0.0"
+#Kotlix Serialization
 ktorSerializationKotlinxJson = "3.0.0"
+#Ksp
+ksp-version = "2.0.0-1.0.22"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.09.03"
-navigationCompose = "2.8.2"
+navigationCompose = "2.8.4"
 kotlinxSerializationJson = "1.7.1"
 kotlinSerialization = "2.0.0"
-daggerHilt = "2.51.1"
+hilt-navigation-version = "1.2.0"
+constraintlayout-version = "1.1.0"
+pagingRuntime = "3.3.4"
+uiTextGoogleFonts = "1.7.5"
+coil-version = "2.6.0"
+composeMaterial = "1.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+#Navigation
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
+# Hilt
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "pagingRuntime" }
+androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "pagingRuntime" }
+dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-version" }
+dagger-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt-version" }
+hilt-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hilt-navigation-version" }
+# Compose Hilt Navigation
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-version" }
+#Downloadable Fonts
+androidx-ui-text-google-fonts = { module = "androidx.compose.ui:ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+#Junit Test and espresso
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+#LifeCycle
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+#Compose
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -37,17 +59,31 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+#Kotlin Serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+#Ktor
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorClientLogging" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientOkhttp" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor-auth" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorSerializationKotlinxJson" }
+# Constraint Layout
+constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout-version" }
+# Coil
+coil-coil = { module = "io.coil-kt:coil", version.ref = "coil-version" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-version" }
+coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil-version"}
+androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
+#Hilt
+dagger-hilt-android-plugin = { id = "com.google.dagger.hilt.android", version.ref = "hilt-version" }
+#KSP
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-version" }
+#Kotlin Serialization
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }
 

@@ -2,17 +2,31 @@ package com.minthanhtike.minflix.navigation.mainNavGraph
 
 import kotlinx.serialization.Serializable
 
+object Screens{
+    const val FavScn = "com.minthanhtike.minflix.navigation.mainNavGraph.FavouriteScreen"
+    const val HomeScn = "com.minthanhtike.minflix.navigation.mainNavGraph.HomeScreen"
+    const val DetailScn = "com.minthanhtike.minflix.navigation.mainNavGraph.DetailScreen"
+    const val SearchScn = "com.minthanhtike.minflix.navigation.mainNavGraph.SearchScreen"
+}
 
 @Serializable
-data object Home
+abstract class AppScreens
 
 @Serializable
-data class MovieDetail(
-    val id: String
-)
+data object HomeScreen : AppScreens()
 
 @Serializable
-data object Movie
+data class DetailScreen(
+    val id: Int,
+    val name:String,
+    val image:String
+):AppScreens()
+
+@Serializable
+data object SearchScreen : AppScreens()
+
+@Serializable
+data object FavouriteScreen : AppScreens()
 
 @Serializable
 data object TVShow
