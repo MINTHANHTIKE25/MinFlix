@@ -1,6 +1,5 @@
 package com.minthanhtike.minflix.ui.component
 
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -35,12 +34,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavOptions
 import com.minthanhtike.minflix.R
 import com.minthanhtike.minflix.navigation.mainNavGraph.AppScreens
-import com.minthanhtike.minflix.navigation.mainNavGraph.DetailScreen
 import com.minthanhtike.minflix.navigation.mainNavGraph.FavouriteScreen
 import com.minthanhtike.minflix.navigation.mainNavGraph.HomeScreen
 import com.minthanhtike.minflix.navigation.mainNavGraph.Screens
