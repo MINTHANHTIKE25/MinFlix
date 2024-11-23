@@ -3,6 +3,7 @@ package com.minthanhtike.minflix.feature.home.ui
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.paging.PagingData
 import com.minthanhtike.minflix.feature.home.data.repo.HomeRepo
+import com.minthanhtike.minflix.feature.home.domain.model.AiringTvTodayModel
 import com.minthanhtike.minflix.feature.home.domain.model.NowPlayMovieModel
 import com.minthanhtike.minflix.feature.home.domain.model.TrendingMovieModels
 import com.minthanhtike.minflix.feature.home.domain.model.TrendingTvModels
@@ -14,7 +15,8 @@ import kotlinx.coroutines.flow.emptyFlow
 data class HomeUiState(
     val trendingMovieState: Flow<TrendingMovieState> = emptyFlow(),
     val trendingTvState:Flow<PagingData<TrendingTvModels>> = emptyFlow(),
-    val nowPlayMoviesState:Flow<PagingData<NowPlayMovieModel>> = emptyFlow()
+    val nowPlayMoviesState:Flow<PagingData<NowPlayMovieModel>> = emptyFlow(),
+    val getAirTvTodayState:Flow<PagingData<AiringTvTodayModel>> = emptyFlow()
 )
 
 sealed interface TrendingMovieState {

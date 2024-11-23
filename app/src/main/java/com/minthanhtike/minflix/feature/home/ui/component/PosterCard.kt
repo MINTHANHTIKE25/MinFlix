@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -32,7 +33,7 @@ import coil.compose.AsyncImagePainter
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun PosterCard(
-    id: Int,
+    id: String,
     modifier: Modifier = Modifier,
     posterImg: String,
     sharedTransitionScope: SharedTransitionScope? = null,
@@ -85,6 +86,7 @@ fun PosterCard(
                 )
                 Text(
                     text = name,
+                    textAlign = TextAlign.Center,
                     modifier = modifier
                         .align(Alignment.CenterHorizontally)
                         .sharedElement(

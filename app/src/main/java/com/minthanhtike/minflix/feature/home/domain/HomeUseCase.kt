@@ -9,13 +9,14 @@ class HomeUseCase @Inject constructor(
 ) {
     suspend fun getTrendingMovies(time: String): Result<List<TrendingMovieModels>> {
         return homeRepo.getTrendingMovie(time)
-            .mapCatching { trendMovies ->
+            .map { trendMovies ->
                 val result = mutableListOf<TrendingMovieModels>()
+
                 if (time == "day") {
-                    val dayList = trendMovies.take(7)
+                    val dayList = trendMovies.filter { it.backdropPath.isNotEmpty() }.take(7)
                     result.addAll(dayList)
                 } else {
-                    val weekList = trendMovies.takeLast(7)
+                    val weekList = trendMovies.filter { it.backdropPath.isNotEmpty() }.takeLast(7)
                     result.addAll(weekList)
                 }
                 result
@@ -25,5 +26,7 @@ class HomeUseCase @Inject constructor(
     suspend fun getTrendingTv(time: String) = homeRepo.getTrendingTv(time)
 
     suspend fun getNowPlayMovies() = homeRepo.getNowPlayingMovie()
+
+    suspend fun getAiringTvToday() = homeRepo.getAirTvToday()
 
 }
