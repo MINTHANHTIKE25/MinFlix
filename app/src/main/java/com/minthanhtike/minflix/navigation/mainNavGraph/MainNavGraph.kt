@@ -78,7 +78,7 @@ fun MainNavSetUp(
             ) {
                 composable<HomeScreen> {
                     CompositionLocalProvider(value = LocalAnimatedContentScope provides this) {
-                        HomeScn(paddingValues = padding) { id: Int, name: String ,image:String->
+                        HomeScn(paddingValues = padding) { id: String, name: String ,image:String->
                             navController.navigate(
                                 DetailScreen(
                                     name = name,

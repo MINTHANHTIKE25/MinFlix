@@ -17,7 +17,7 @@ data object HomeScreen : AppScreens()
 
 @Serializable
 data class DetailScreen(
-    val id: Int,
+    val id: String,
     val name:String,
     val image:String
 ):AppScreens()

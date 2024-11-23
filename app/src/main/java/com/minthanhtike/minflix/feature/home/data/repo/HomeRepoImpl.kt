@@ -4,9 +4,11 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.minthanhtike.minflix.feature.home.data.mapper.toDomain
+import com.minthanhtike.minflix.feature.home.data.paginator.AiringTvTodayPagingSource
 import com.minthanhtike.minflix.feature.home.data.paginator.NowPlayMoviePagingSource
 import com.minthanhtike.minflix.feature.home.data.paginator.TrendingTvPagingSource
 import com.minthanhtike.minflix.feature.home.data.remote.HomeRemoteDataSource
+import com.minthanhtike.minflix.feature.home.domain.model.AiringTvTodayModel
 import com.minthanhtike.minflix.feature.home.domain.model.NowPlayMovieModel
 import com.minthanhtike.minflix.feature.home.domain.model.TrendingMovieModels
 import com.minthanhtike.minflix.feature.home.domain.model.TrendingTvModels
@@ -25,22 +27,33 @@ class HomeRepoImpl @Inject constructor(
     }
 
     override suspend fun getTrendingTv(time: String): Flow<PagingData<TrendingTvModels>> {
-        return Pager(
-            config = PagingConfig(pageSize = 5),
-            pagingSourceFactory = {
-                TrendingTvPagingSource { page, pageSize ->
-                    homeRemoteDataSource.getTrendingTv(time, page)
-                }
-            }
-        ).flow
-    }
-
-    override suspend fun getNowPlayingMovie():Flow<PagingData<NowPlayMovieModel>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             Pager(
                 config = PagingConfig(pageSize = 5),
                 pagingSourceFactory = {
-                    NowPlayMoviePagingSource(homeRemoteDataSource = homeRemoteDataSource)
+                    TrendingTvPagingSource(homeRemoteDataSource, time)
+                }
+            ).flow
+        }
+    }
+
+    override suspend fun getNowPlayingMovie(): Flow<PagingData<NowPlayMovieModel>> {
+        return withContext(Dispatchers.IO) {
+            Pager(
+                config = PagingConfig(pageSize = 5),
+                pagingSourceFactory = {
+                    NowPlayMoviePagingSource(homeRemoteDataSource)
+                }
+            ).flow
+        }
+    }
+
+    override suspend fun getAirTvToday(): Flow<PagingData<AiringTvTodayModel>> {
+        return withContext(Dispatchers.IO) {
+            Pager(
+                config = PagingConfig(pageSize = 5),
+                pagingSourceFactory = {
+                    AiringTvTodayPagingSource(homeRemoteDataSource)
                 }
             ).flow
         }

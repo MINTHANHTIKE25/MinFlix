@@ -32,7 +32,7 @@ private val TITLETXT = "titleTxt"
 @Composable
 fun DetailScn(
     modifier: Modifier = Modifier,
-    id: Int, name: String,
+    id: String, name: String,
     image: String
 ) {
     val sharedTransitionScope = LocalSharedTransitionScope.current

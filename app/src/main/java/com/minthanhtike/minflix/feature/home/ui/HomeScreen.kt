@@ -30,13 +30,15 @@ import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,13 +57,14 @@ import androidx.compose.ui.util.lerp
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import coil.compose.AsyncImagePainter
 import com.minthanhtike.minflix.R
 import com.minthanhtike.minflix.common.FontProvider
 import com.minthanhtike.minflix.feature.home.ui.component.ItemHeader
+import com.minthanhtike.minflix.feature.home.ui.component.MessageCard
 import com.minthanhtike.minflix.feature.home.ui.component.PageIndicator
 import com.minthanhtike.minflix.feature.home.ui.component.PosterCard
 import com.minthanhtike.minflix.ui.component.LocalAnimatedContentScope
@@ -81,7 +84,7 @@ fun HomeScn(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    trendTvOnClick: (id: Int, name: String, image: String) -> Unit
+    trendTvOnClick: (id: String, name: String, image: String) -> Unit
 ) {
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -94,6 +97,9 @@ fun HomeScn(
         onTrendTvDateSelect = { date ->
             homeViewModel.getTrendingTv(date)
         },
+        retryApiCall = { time ->
+            homeViewModel.getTrendingMovie(time)
+        },
         trendTvOnClick = trendTvOnClick
     )
 }
@@ -104,15 +110,20 @@ fun HomeScnContent(
     uiState: HomeUiState,
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
+    retryApiCall: (str: String) -> Unit,
     onTrendMovieDateSelect: (date: String) -> Unit,
     onTrendTvDateSelect: (date: String) -> Unit,
-    trendTvOnClick: (id: Int, name: String, image: String) -> Unit
+    trendTvOnClick: (id: String, name: String, image: String) -> Unit
 ) {
+    var trendMovieTime by remember {
+        mutableStateOf("day")
+    }
     val trendingMovieState by uiState.trendingMovieState
         .collectAsStateWithLifecycle(initialValue = TrendingMovieState.Idle)
 
-    val trendTvState = uiState.trendingTvState.collectAsLazyPagingItems()
-    val nowPlayMovieState = uiState.nowPlayMoviesState.collectAsLazyPagingItems()
+    val trendTvs = uiState.trendingTvState.collectAsLazyPagingItems()
+    val nowPlayMovies = uiState.nowPlayMoviesState.collectAsLazyPagingItems()
+    val todayAiringTvs = uiState.getAirTvTodayState.collectAsLazyPagingItems()
 
     val sharedTransitionScope = LocalSharedTransitionScope.current
     val animatedContentScope = LocalAnimatedContentScope.current
@@ -151,7 +162,47 @@ fun HomeScnContent(
         }
     }
 
-    val scope = rememberCoroutineScope()
+    var trendMoviesListSize by remember { mutableIntStateOf(0) }
+
+    val nowPlayState = when {
+        (nowPlayMovies.loadState.refresh is LoadState.NotLoading &&
+                nowPlayMovies.itemSnapshotList.items.isNotEmpty()) -> "success"
+
+        nowPlayMovies.loadState.hasError -> "error"
+        else -> "loading"
+    }
+
+    val trendLazyRowState =
+        when {
+            (trendTvs.loadState.refresh is LoadState.NotLoading &&
+                    trendTvs.itemSnapshotList.items.isNotEmpty()) -> "success"
+
+            trendTvs.loadState.hasError -> "error"
+            else -> "loading"
+        }
+
+    val airRowState =
+        when {
+            (todayAiringTvs.loadState.refresh is LoadState.NotLoading &&
+                    todayAiringTvs.itemSnapshotList.items.isNotEmpty()) -> "success"
+
+            todayAiringTvs.loadState.hasError -> "error"
+            else -> "loading"
+        }
+
+    val pagerState = rememberPagerState(pageCount = { trendMoviesListSize })
+    if (pagerState.pageCount != 0) {
+        LaunchedEffect(Unit) {
+            while (true) {
+                delay(3500)
+                val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
+                pagerState.animateScrollToPage(
+                    page = nextPage, animationSpec = tween()
+                )
+            }
+        }
+    }
+
     LazyColumn(
         modifier = Modifier
             .navigationBarsPadding()
@@ -173,6 +224,7 @@ fun HomeScnContent(
                     .fillParentMaxWidth()
                     .wrapContentHeight()
             ) { date ->
+                trendMovieTime = date
                 onTrendMovieDateSelect(date)
             }
         }
@@ -192,20 +244,22 @@ fun HomeScnContent(
                     )
                 }
             }
+            if (trendingMovieState is TrendingMovieState.Error) {
+                MessageCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = "Oops!Something went wrong",
+                    buttonText = "Try again",
+                    onClick = dropUnlessResumed {
+                        retryApiCall(trendMovieTime)
+                    }
+                )
+            }
 
             if (trendingMovieState is TrendingMovieState.Success) {
                 val trendingMovieList =
                     (trendingMovieState as TrendingMovieState.Success).trendMovie
-                val pagerState = rememberPagerState(pageCount = { trendingMovieList.size })
-                LaunchedEffect(Unit) {
-                    while (true) {
-                        delay(3500)
-                        val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
-                        pagerState.animateScrollToPage(
-                            page = nextPage, animationSpec = tween()
-                        )
-                    }
-                }
+                trendMoviesListSize = trendingMovieList.size
+
                 Column(
                     modifier = Modifier
                         .fillParentMaxWidth()
@@ -227,9 +281,8 @@ fun HomeScnContent(
                             else -> PaddingValues(horizontal = 32.dp)
                         },
                     ) { currentPage ->
-                        val currentMovie = trendingMovieList[currentPage]
                         AsyncImage(
-                            model = currentMovie.backdropPath,
+                            model = trendingMovieList[currentPage].backdropPath,
                             contentDescription = "Trending Movies Image",
                             contentScale = ContentScale.Companion.FillBounds,
                             modifier = Modifier
@@ -284,11 +337,8 @@ fun HomeScnContent(
                         .wrapContentHeight()
                 ) { onTrendTvDateSelect(it) }
 
-                val showLazyRow = trendTvState.loadState.refresh is LoadState.NotLoading &&
-                        trendTvState.itemSnapshotList.items.isNotEmpty()
-
                 AnimatedContent(
-                    targetState = showLazyRow,
+                    targetState = trendLazyRowState,
                     label = "Animating Lazy Row",
                     transitionSpec = {
                         (fadeIn(
@@ -302,7 +352,7 @@ fun HomeScnContent(
                         .padding(top = 20.dp)
                         .wrapContentSize()
                 ) { targetState ->
-                    if (targetState) {
+                    if (targetState == "success") {
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -310,10 +360,10 @@ fun HomeScnContent(
                             contentPadding = PaddingValues(horizontal = 15.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            items(trendTvState.itemCount) { currentItem ->
-                                trendTvState[currentItem]?.let { tv ->
+                            items(trendTvs.itemCount) { currentItem ->
+                                trendTvs[currentItem]?.let { tv ->
                                     PosterCard(
-                                        id = currentItem,
+                                        id = "$currentItem trendTv",
                                         posterImg = tv.posterPath,
                                         name = tv.name,
                                         modifier = Modifier
@@ -325,7 +375,7 @@ fun HomeScnContent(
                                         animatedContentScope = animatedContentScope,
                                         onClick = {
                                             trendTvOnClick(
-                                                currentItem,
+                                                "$currentItem trendTv",
                                                 tv.name,
                                                 tv.posterPath
                                             )
@@ -334,7 +384,8 @@ fun HomeScnContent(
                                 }
                             }
                         }
-                    } else {
+                    }
+                    if (targetState == "loading") {
                         Box(
                             modifier = Modifier
                                 .fillParentMaxWidth()
@@ -346,6 +397,14 @@ fun HomeScnContent(
                             )
                         }
                     }
+                    if (targetState == "error") {
+                        MessageCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = "Oop!Something went wrong",
+                            buttonText = "Try again",
+                            onClick = dropUnlessResumed { trendTvs.retry() }
+                        )
+                    }
                 }
 
             }
@@ -353,10 +412,11 @@ fun HomeScnContent(
         }
         //endregion
 
-
+        //region now playing movies
         item(key = 4) {
             Column(
                 modifier = Modifier
+                    .padding(top = 30.dp)
                     .fillParentMaxWidth()
                     .wrapContentHeight()
             ) {
@@ -373,11 +433,9 @@ fun HomeScnContent(
                     ),
                     modifier = Modifier.padding(start = 20.dp)
                 )
-                val showLazyRow = nowPlayMovieState.loadState.refresh is LoadState.NotLoading &&
-                        nowPlayMovieState.itemSnapshotList.items.isNotEmpty()
 
                 AnimatedContent(
-                    targetState = showLazyRow,
+                    targetState = nowPlayState,
                     label = "Animating Lazy Row",
                     transitionSpec = {
                         (fadeIn(
@@ -391,41 +449,40 @@ fun HomeScnContent(
                         .padding(top = 20.dp)
                         .wrapContentSize()
                 ) { targetState ->
-                    if (targetState) {
+                    if (targetState == "success") {
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(220.dp),
+                                .height(260.dp),
                             contentPadding = PaddingValues(horizontal = 15.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            items(nowPlayMovieState.itemCount) { currentItem ->
-                                Card(
-                                    modifier = Modifier
-                                        .width(140.dp)
-                                        .height(210.dp),
-                                    shape = RoundedCornerShape(6.dp)
-                                ) {
-                                    AsyncImage(
-                                        model = nowPlayMovieState[currentItem]?.posterPath.orEmpty(),
-                                        contentDescription = "Tv Show PosterPath",
-                                        modifier = Modifier.fillParentMaxSize(),
-                                        contentScale = ContentScale.Fit,
-                                        onState = { state ->
-                                            when (state) {
-                                                is AsyncImagePainter.State.Loading -> {}
-                                                is AsyncImagePainter.State.Error -> {}
-                                                is AsyncImagePainter.State.Empty -> {}
-                                                is AsyncImagePainter.State.Success -> {}
-                                            }
-
-                                        }
+                            items(nowPlayMovies.itemCount) { currentItem ->
+                                nowPlayMovies[currentItem]?.let { movies ->
+                                    PosterCard(
+                                        id = "$currentItem nowPlayMovie",
+                                        posterImg = movies.posterPath,
+                                        onClick = {
+                                            trendTvOnClick(
+                                                "$currentItem nowPlayMovie",
+                                                movies.title,
+                                                movies.posterPath
+                                            )
+                                        },
+                                        name = movies.title,
+                                        modifier = Modifier
+                                            .width(140.dp)
+                                            .height(210.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .animateItem(),
+                                        sharedTransitionScope = sharedTransitionScope,
+                                        animatedContentScope = animatedContentScope,
                                     )
-
                                 }
                             }
                         }
-                    } else {
+                    }
+                    if (nowPlayState == "loading") {
                         Box(
                             modifier = Modifier
                                 .fillParentMaxWidth()
@@ -437,11 +494,116 @@ fun HomeScnContent(
                             )
                         }
                     }
+                    if (targetState == "error") {
+                        MessageCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = "Oop!Something went wrong",
+                            buttonText = "Try again",
+                            onClick = dropUnlessResumed { nowPlayMovies.retry() }
+                        )
+                    }
+
                 }
             }
-
         }
+        //endregion
 
+        //region Airing today
+        item(key = 5) {
+            Column(
+                modifier = Modifier
+                    .padding(top = 30.dp)
+                    .fillParentMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                Text(
+                    text = "Tv Shows Airing Today",
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = FontFamily(
+                        Font(
+                            googleFont = FontProvider.fontNameInter,
+                            fontProvider = FontProvider.provider
+                        )
+                    ),
+                    modifier = Modifier.padding(start = 20.dp)
+                )
+
+                AnimatedContent(
+                    targetState = airRowState,
+                    label = "Animating Lazy Row",
+                    transitionSpec = {
+                        (fadeIn(
+                            animationSpec = tween(220, delayMillis = 90)
+                        ) + scaleIn(
+                            initialScale = 0.92f,
+                            animationSpec = tween(220, delayMillis = 90)
+                        )).togetherWith(fadeOut(animationSpec = tween(90)))
+                    },
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .wrapContentSize()
+                ) { targetState ->
+                    if (targetState == "success") {
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(260.dp),
+                            contentPadding = PaddingValues(horizontal = 15.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(todayAiringTvs.itemCount) { currentItem ->
+                                todayAiringTvs[currentItem]?.let { tv ->
+                                    PosterCard(
+                                        id = "$currentItem airingTv",
+                                        posterImg = tv.posterPath,
+                                        onClick = {
+                                            trendTvOnClick(
+                                                "$currentItem airingTv",
+                                                tv.name,
+                                                tv.posterPath
+                                            )
+                                        },
+                                        name = tv.name,
+                                        modifier = Modifier
+                                            .width(140.dp)
+                                            .height(210.dp)
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .animateItem(),
+                                        sharedTransitionScope = sharedTransitionScope,
+                                        animatedContentScope = animatedContentScope,
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (targetState == "loading") {
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxWidth()
+                                .height(220.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                color = colorResource(id = R.color.primary_color),
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+
+                    if (targetState == "error") {
+                        MessageCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = "Oop!Something went wrong",
+                            buttonText = "Try again",
+                            onClick = dropUnlessResumed { todayAiringTvs.retry() }
+                        )
+                    }
+                }
+            }
+        }
+        //endregion
 
     }
 }
@@ -465,7 +627,8 @@ private fun HomeScnPrev() {
                 onTrendMovieDateSelect = {},
                 uiState = HomeUiState(),
                 onTrendTvDateSelect = {},
-                trendTvOnClick = { _, _, _ -> }
+                trendTvOnClick = { _, _, _ -> },
+                retryApiCall = {}
             )
         }
     }
