@@ -1,15 +1,12 @@
 package com.minthanhtike.minflix.feature.home.data.remote
 
-import android.util.Log
 import com.minthanhtike.minflix.common.handle
 import com.minthanhtike.minflix.feature.home.data.mapper.toDomain
 import com.minthanhtike.minflix.feature.home.data.model.AiringTvTodayResponse
 import com.minthanhtike.minflix.feature.home.data.model.NowPlayingMovieResponse
 import com.minthanhtike.minflix.feature.home.data.model.TrendingMoviesResponse
 import com.minthanhtike.minflix.feature.home.data.model.TrendingTvResponse
-import com.minthanhtike.minflix.feature.home.domain.model.TrendingTvModels
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.url

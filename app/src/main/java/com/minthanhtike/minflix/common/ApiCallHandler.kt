@@ -4,8 +4,6 @@ import com.minthanhtike.minflix.exception.ApiException
 import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 suspend inline fun <reified T> handle(
     crossinline apiCall: suspend () -> HttpResponse
