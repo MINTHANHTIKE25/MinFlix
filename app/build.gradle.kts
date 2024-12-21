@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.dagger.hilt.android.plugin)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -36,17 +37,20 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjN2U4NzI0NzFjMGMyZGRlNzYyY2M5NmJhNjdlYTU1YiIsIm5iZiI6MTczMTkyNjQ4OC42NjY1OTUsInN1YiI6IjY1NzI5NDM5MjExY2U1MDBmZWNjYjcxZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ruAd2ywnmDwf-bZETR1NRzHzAbJfmcz-8TmvuCWDaHI\""
+                ""
             )
         }
 
         debug {
+            isMinifyEnabled = false
+            isDebuggable = true
+            applicationIdSuffix =".debug"
             buildConfigField("String", "API_URL", "\"https://api.themoviedb.org/\"")
             buildConfigField("String", "IMAGE_URL", "\"https://image.tmdb.org/t/p/w500/\"")
             buildConfigField(
                 "String",
                 "API_KEY",
-                "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjN2U4NzI0NzFjMGMyZGRlNzYyY2M5NmJhNjdlYTU1YiIsIm5iZiI6MTczMTkyNjQ4OC42NjY1OTUsInN1YiI6IjY1NzI5NDM5MjExY2U1MDBmZWNjYjcxZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ruAd2ywnmDwf-bZETR1NRzHzAbJfmcz-8TmvuCWDaHI\""
+                ""
             )
         }
     }
@@ -80,6 +84,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -124,6 +129,16 @@ dependencies {
     //paging 3
     implementation(libs.androidx.paging.compose)
     implementation(libs.androidx.paging.runtime)
+
+    //window size
+    implementation(libs.androidx.windowsize)
+
+    //adaptive navigation suite
+    implementation(libs.androidx.material3.adaptive.navigation.suite)
+    //supporting pane scaffold
+    implementation(libs.androidx.adaptive)
+    implementation(libs.androidx.adaptive.layout)
+    implementation(libs.androidx.adaptive.navigation)
 
 
 }

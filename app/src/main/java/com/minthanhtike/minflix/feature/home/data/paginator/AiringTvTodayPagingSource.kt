@@ -7,7 +7,7 @@ import com.minthanhtike.minflix.feature.home.domain.model.AiringTvTodayModel
 
 class AiringTvTodayPagingSource(
     private val homeRemoteDataSource: HomeRemoteDataSource
-):PagingSource<Int,AiringTvTodayModel>() {
+) : PagingSource<Int, AiringTvTodayModel>() {
     override fun getRefreshKey(state: PagingState<Int, AiringTvTodayModel>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
@@ -20,7 +20,8 @@ class AiringTvTodayPagingSource(
         return homeRemoteDataSource.getAirTodayTv(nextPageNumber)
             .fold(
                 onSuccess = { tv ->
-                    val result = tv.filter { it.posterPath.isNotEmpty() }
+                    val result = tv.filter { it.posterPath.isNotEmpty() or it.name.isNotEmpty() }
+                        .distinct()
                     LoadResult.Page(
                         data = result,
                         prevKey = null,

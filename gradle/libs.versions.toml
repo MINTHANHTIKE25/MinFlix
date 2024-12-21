@@ -28,9 +28,17 @@ pagingRuntime = "3.3.4"
 uiTextGoogleFonts = "1.7.5"
 coil-version = "2.6.0"
 composeMaterial = "1.4.0"
+appcompat = "1.7.0"
 
 [libraries]
+androidx-adaptive = { module = "androidx.compose.material3.adaptive:adaptive" }
+androidx-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout" }
+androidx-adaptive-navigation = { module = "androidx.compose.material3.adaptive:adaptive-navigation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+#Adaptive Navigation Suite
+androidx-material3-adaptive-navigation-suite = { module = "androidx.compose.material3:material3-adaptive-navigation-suite" }
+#Window Size
+androidx-windowsize= {module="androidx.compose.material3:material3-window-size-class"}
 #Navigation
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 # Hilt
@@ -75,6 +83,7 @@ coil-coil = { module = "io.coil-kt:coil", version.ref = "coil-version" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-version" }
 coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil-version"}
 androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -86,4 +95,5 @@ dagger-hilt-android-plugin = { id = "com.google.dagger.hilt.android", version.re
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-version" }
 #Kotlin Serialization
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinSerialization" }
-
+#Parcelize
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }

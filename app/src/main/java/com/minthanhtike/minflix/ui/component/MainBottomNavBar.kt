@@ -7,6 +7,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,10 +22,12 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,28 +65,10 @@ val bottomNavItems = arrayOf(
 @Composable
 fun MainBottomNavBar(
     navController: NavController,
-    onSelected: (AppScreens) -> Unit
-) {
+    selectedNavItem: AppScreens,
+    onSelected: (AppScreens) -> Unit,
 
-    var selectedNavItem by remember { mutableStateOf<AppScreens>(HomeScreen) }
-
-    //tracking the backstack and selecting the bottom navigation items
-    navController.addOnDestinationChangedListener(
-        listener = { controller, destination, arguments ->
-            when (destination.route) {
-                Screens.HomeScn ->
-                    selectedNavItem = HomeScreen
-
-                Screens.SearchScn ->
-                    selectedNavItem = SearchScreen
-
-                Screens.FavScn ->
-                    selectedNavItem = FavouriteScreen
-
-            }
-        }
-    )
-
+    ) {
     Row(
         modifier = Modifier
             .navigationBarsPadding()
@@ -103,7 +88,7 @@ fun MainBottomNavBar(
     ) {
         bottomNavItems.forEachIndexed { index, item ->
             val animateIcSize by animateDpAsState(
-                targetValue = if (item.screen == selectedNavItem) 36.dp else 30.dp,
+                targetValue = if (item.screen == selectedNavItem) 36.dp else 25.dp,
                 animationSpec = spring(),
                 label = "Size",
             )
@@ -127,8 +112,24 @@ fun MainBottomNavBar(
             )
             Box(
                 modifier = Modifier
-                    .wrapContentWidth()
+                    .width(60.dp)
                     .fillMaxHeight()
+                    .clickable(
+                        indication = ripple(bounded = true, color = Color.White),
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        onSelected(selectedNavItem)
+                        navController.navigate(item.screen) {
+                            // Avoid multiple copies of the same destination when
+                            // re-selecting the same item
+                            launchSingleTop = true
+                            // Restore state when re-selecting a previously selected item
+                            restoreState = true
+                            popUpTo(item.screen) {
+                                inclusive = false
+                            }
+                        }
+                    }
             ) {
                 Icon(
                     painter = painterResource(
@@ -137,21 +138,7 @@ fun MainBottomNavBar(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(animateIcSize)
-                        .clickable {
-                            selectedNavItem = item.screen
-                            onSelected(selectedNavItem)
-                            navController.navigate(item.screen) {
-                                // Avoid multiple copies of the same destination when
-                                // re-selecting the same item
-                                launchSingleTop = true
-                                // Restore state when re-selecting a previously selected item
-                                restoreState = true
-                                popUpTo(item.screen){
-                                    inclusive = false
-                                }
-                            }
-                        },
+                        .size(animateIcSize),
                     tint = animateIcColor
                 )
                 HorizontalDivider(

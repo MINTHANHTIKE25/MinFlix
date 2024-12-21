@@ -53,11 +53,11 @@ fun MainTopAppBar(
         scrollBehavior = topAppBarScrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
             scrolledContainerColor = Color(
-                0,0,0,133
+                0,0,0,203
             ),
             containerColor = Color.Transparent
         ),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         title = {
             Box(modifier = Modifier.fillMaxSize()) {

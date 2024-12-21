@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 
 data class HomeUiState(
-    val trendingMovieState: Flow<TrendingMovieState> = emptyFlow(),
-    val trendingTvState:Flow<PagingData<TrendingTvModels>> = emptyFlow(),
+    val trendingMovieState: StateFlow<TrendingMovieState> = MutableStateFlow(TrendingMovieState.Idle),
+    val trendingTvState:Flow<PagingData<TrendingTvModels>> = MutableStateFlow(PagingData.empty()),
     val nowPlayMoviesState:Flow<PagingData<NowPlayMovieModel>> = emptyFlow(),
     val getAirTvTodayState:Flow<PagingData<AiringTvTodayModel>> = emptyFlow()
 )
@@ -26,8 +26,13 @@ sealed interface TrendingMovieState {
         val trendMovie: List<TrendingMovieModels>
     ) : TrendingMovieState
     data class Error(
-        val msg: String
-    ) : TrendingMovieState
+        val msg: String,
+        private val apiCall:(time:String) -> Unit
+    ) : TrendingMovieState{
+        fun retryApiCall(time:String){
+            apiCall(time)
+        }
+    }
 
     data object ErrorShown : TrendingMovieState
 }

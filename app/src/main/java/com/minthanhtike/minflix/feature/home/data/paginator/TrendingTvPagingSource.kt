@@ -17,15 +17,17 @@ class TrendingTvPagingSource(
     }
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, TrendingTvModels> {
-        val nextPageNumber = params.key ?: 1
-        return homeRemoteDataSource.getTrendingTv(time, nextPageNumber)
+        val page = params.key ?: 1
+        return homeRemoteDataSource.getTrendingTv(time, page)
             .fold(
                 onSuccess = { movies ->
                     LoadResult.Page(
-                        data = movies.filter { it.posterPath.isNotEmpty() },
+                        data = movies
+                            .filter { it.posterPath.isNotEmpty() or it.name.isNotEmpty() }
+                            .distinctBy { it.id },
                         prevKey = null,
-                        nextKey = if (movies.isNotEmpty() and (nextPageNumber < 5))
-                            nextPageNumber + 1 else null
+                        nextKey = if (movies.isNotEmpty() and (page < 7))
+                            page + 1 else null
                     )
                 },
                 onFailure = { error ->

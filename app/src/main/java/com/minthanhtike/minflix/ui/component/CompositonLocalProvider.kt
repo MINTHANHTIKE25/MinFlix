@@ -9,11 +9,15 @@ import androidx.compose.runtime.compositionLocalOf
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 val LocalSharedTransitionScope =
-    compositionLocalOf<SharedTransitionScope?> {
-        null
+    compositionLocalOf<SharedTransitionScope> {
+        noLocalProvidedFor("SharedTransitionScope")
     }
 
 val LocalAnimatedContentScope =
-    compositionLocalOf<AnimatedContentScope?> {
-        null
+    compositionLocalOf<AnimatedContentScope> {
+        noLocalProvidedFor("AnimatedContentScope")
     }
+
+private fun noLocalProvidedFor(name: String): Nothing {
+    error("CompositionLocal $name not present")
+}

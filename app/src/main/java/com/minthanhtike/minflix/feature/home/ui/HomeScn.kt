@@ -1,7 +1,10 @@
 package com.minthanhtike.minflix.feature.home.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +55,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -59,18 +64,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.minthanhtike.minflix.R
 import com.minthanhtike.minflix.common.FontProvider
+import com.minthanhtike.minflix.feature.home.domain.model.TrendingMovieModels
+import com.minthanhtike.minflix.feature.home.domain.model.TrendingTvModels
 import com.minthanhtike.minflix.feature.home.ui.component.ItemHeader
 import com.minthanhtike.minflix.feature.home.ui.component.MessageCard
 import com.minthanhtike.minflix.feature.home.ui.component.PageIndicator
 import com.minthanhtike.minflix.feature.home.ui.component.PosterCard
+import com.minthanhtike.minflix.feature.home.ui.component.getHomeUiSize
 import com.minthanhtike.minflix.ui.component.LocalAnimatedContentScope
 import com.minthanhtike.minflix.ui.component.LocalSharedTransitionScope
-import com.minthanhtike.minflix.ui.theme.MinFlixTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.math.absoluteValue
 
 private const val TRENDMVTXT = "TrendMovieTxt"
@@ -79,15 +88,18 @@ private const val TRENDTVTXT = "TrendTvTxt"
 private const val TRENDTVSWITCH = "TrendTvSwitch"
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun HomeScn(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    trendTvOnClick: (id: String, name: String, image: String) -> Unit
+    trendTvOnClick: (id: Int, name: String, image: String, type: String) -> Unit
 ) {
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
 
+    val sharedTransitionScope = LocalSharedTransitionScope.current
+    val animatedContentScope = LocalAnimatedContentScope.current
     HomeScnContent(
         uiState = uiState,
         paddingValues = paddingValues,
@@ -97,10 +109,9 @@ fun HomeScn(
         onTrendTvDateSelect = { date ->
             homeViewModel.getTrendingTv(date)
         },
-        retryApiCall = { time ->
-            homeViewModel.getTrendingMovie(time)
-        },
-        trendTvOnClick = trendTvOnClick
+        trendTvOnClick = trendTvOnClick,
+        sharedTransitionScope = sharedTransitionScope,
+        animatedContentScope = animatedContentScope
     )
 }
 
@@ -110,10 +121,11 @@ fun HomeScnContent(
     uiState: HomeUiState,
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
-    retryApiCall: (str: String) -> Unit,
     onTrendMovieDateSelect: (date: String) -> Unit,
     onTrendTvDateSelect: (date: String) -> Unit,
-    trendTvOnClick: (id: String, name: String, image: String) -> Unit
+    trendTvOnClick: (id: Int, name: String, image: String, type: String) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope
 ) {
     var trendMovieTime by remember {
         mutableStateOf("day")
@@ -124,9 +136,6 @@ fun HomeScnContent(
     val trendTvs = uiState.trendingTvState.collectAsLazyPagingItems()
     val nowPlayMovies = uiState.nowPlayMoviesState.collectAsLazyPagingItems()
     val todayAiringTvs = uiState.getAirTvTodayState.collectAsLazyPagingItems()
-
-    val sharedTransitionScope = LocalSharedTransitionScope.current
-    val animatedContentScope = LocalAnimatedContentScope.current
 
     val trendMovieConstraintSet = ConstraintSet {
         val trendTxtRef = createRefFor(TRENDMVTXT)
@@ -162,7 +171,7 @@ fun HomeScnContent(
         }
     }
 
-    var trendMoviesListSize by remember { mutableIntStateOf(0) }
+    var trendMoviesListSize by rememberSaveable { mutableIntStateOf(0) }
 
     val nowPlayState = when {
         (nowPlayMovies.loadState.refresh is LoadState.NotLoading &&
@@ -186,15 +195,18 @@ fun HomeScnContent(
             (todayAiringTvs.loadState.refresh is LoadState.NotLoading &&
                     todayAiringTvs.itemSnapshotList.items.isNotEmpty()) -> "success"
 
-            todayAiringTvs.loadState.hasError -> "error"
-            else -> "loading"
-        }
+        todayAiringTvs.loadState.hasError -> "error"
+        else -> "loading"
+    }
+
+
+    val homeUiSize = getHomeUiSize()
 
     val pagerState = rememberPagerState(pageCount = { trendMoviesListSize })
     if (pagerState.pageCount != 0) {
         LaunchedEffect(Unit) {
             while (true) {
-                delay(3500)
+                delay(3000)
                 val nextPage = (pagerState.currentPage + 1) % pagerState.pageCount
                 pagerState.animateScrollToPage(
                     page = nextPage, animationSpec = tween()
@@ -235,8 +247,8 @@ fun HomeScnContent(
             if (trendingMovieState is TrendingMovieState.Loading) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
+                        .fillParentMaxWidth()
+                        .fillParentMaxHeight(homeUiSize.pagerHeight)
                 ) {
                     CircularProgressIndicator(
                         color = colorResource(id = R.color.primary_color),
@@ -250,7 +262,7 @@ fun HomeScnContent(
                     title = "Oops!Something went wrong",
                     buttonText = "Try again",
                     onClick = dropUnlessResumed {
-                        retryApiCall(trendMovieTime)
+                        (trendingMovieState as TrendingMovieState.Error).retryApiCall(trendMovieTime)
                     }
                 )
             }
@@ -259,11 +271,10 @@ fun HomeScnContent(
                 val trendingMovieList =
                     (trendingMovieState as TrendingMovieState.Success).trendMovie
                 trendMoviesListSize = trendingMovieList.size
-
                 Column(
                     modifier = Modifier
                         .fillParentMaxWidth()
-                        .height(240.dp)
+                        .fillParentMaxHeight(homeUiSize.pagerHeight)
                         .padding(top = 20.dp)
                 ) {
                     HorizontalPager(
@@ -276,9 +287,20 @@ fun HomeScnContent(
                             pagerSnapDistance = PagerSnapDistance.atMost(0)
                         ),
                         contentPadding = when (pagerState.currentPage) {
-                            0 -> PaddingValues(end = 32.dp, start = 20.dp)
-                            6 -> PaddingValues(start = 32.dp, end = 20.dp)
-                            else -> PaddingValues(horizontal = 32.dp)
+                            0 -> PaddingValues(
+                                end = homeUiSize.pagerContentPadding.firstItemPaddingEnd.dp,
+                                start = homeUiSize.pagerContentPadding.firstItemPaddingStart.dp
+                            )
+
+                            6 -> PaddingValues(
+                                start = homeUiSize.pagerContentPadding.lastItemPaddingStart.dp,
+                                end = homeUiSize.pagerContentPadding.lastItemPaddingEnd.dp
+                            )
+
+                            else -> PaddingValues(
+                                horizontal = homeUiSize.pagerContentPadding
+                                    .horizontalPadding.dp
+                            )
                         },
                     ) { currentPage ->
                         AsyncImage(
@@ -287,21 +309,22 @@ fun HomeScnContent(
                             contentScale = ContentScale.Companion.FillBounds,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(180.dp)
+                                .fillMaxHeight(homeUiSize.pagerItemHeight)
                                 .graphicsLayer {
-                                    val pageOffSet =
-                                        ((pagerState.currentPage - currentPage) + pagerState.currentPageOffsetFraction).absoluteValue
+                                    val pageOffSet = ((pagerState.currentPage - currentPage) +
+                                            (pagerState.currentPageOffsetFraction)).absoluteValue
                                     alpha = lerp(
                                         start = 0.5f,
                                         stop = 1f,
                                         fraction = 1f - pageOffSet.coerceIn(0f, 1f)
                                     )
                                     scaleY = lerp(
-                                        start = 0.75f,
+                                        start = 0.8f,
                                         stop = 1f,
                                         fraction = 1f - pageOffSet.coerceIn(0f, 1f)
                                     )
                                 }
+                                .background(Color.LightGray)
                         )
                     }
 
@@ -336,7 +359,6 @@ fun HomeScnContent(
                         .fillParentMaxWidth()
                         .wrapContentHeight()
                 ) { onTrendTvDateSelect(it) }
-
                 AnimatedContent(
                     targetState = trendLazyRowState,
                     label = "Animating Lazy Row",
@@ -356,28 +378,30 @@ fun HomeScnContent(
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(260.dp),
+                                .height((homeUiSize.posterCardSize.height + 50).dp),
                             contentPadding = PaddingValues(horizontal = 15.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(trendTvs.itemCount) { currentItem ->
                                 trendTvs[currentItem]?.let { tv ->
                                     PosterCard(
-                                        id = "$currentItem trendTv",
+                                        id = "${tv.id} trendTv",
                                         posterImg = tv.posterPath,
+                                        textWidth = homeUiSize.posterCardSize.width,
                                         name = tv.name,
                                         modifier = Modifier
-                                            .width(140.dp)
-                                            .height(210.dp)
+                                            .width(homeUiSize.posterCardSize.width.dp)
+                                            .height(homeUiSize.posterCardSize.height.dp)
                                             .clip(RoundedCornerShape(6.dp))
                                             .animateItem(),
                                         sharedTransitionScope = sharedTransitionScope,
                                         animatedContentScope = animatedContentScope,
                                         onClick = {
                                             trendTvOnClick(
-                                                "$currentItem trendTv",
+                                                tv.id,
                                                 tv.name,
-                                                tv.posterPath
+                                                tv.posterPath,
+                                                "trendTv"
                                             )
                                         }
                                     )
@@ -453,26 +477,28 @@ fun HomeScnContent(
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(260.dp),
+                                .height((homeUiSize.posterCardSize.height + 50).dp),
                             contentPadding = PaddingValues(horizontal = 15.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(nowPlayMovies.itemCount) { currentItem ->
                                 nowPlayMovies[currentItem]?.let { movies ->
                                     PosterCard(
-                                        id = "$currentItem nowPlayMovie",
+                                        id = "${movies.id} nowPlayMovie",
+                                        textWidth = homeUiSize.posterCardSize.width,
                                         posterImg = movies.posterPath,
                                         onClick = {
                                             trendTvOnClick(
-                                                "$currentItem nowPlayMovie",
+                                                movies.id,
                                                 movies.title,
-                                                movies.posterPath
+                                                movies.posterPath,
+                                                "nowPlayMovie"
                                             )
                                         },
                                         name = movies.title,
                                         modifier = Modifier
-                                            .width(140.dp)
-                                            .height(210.dp)
+                                            .width(homeUiSize.posterCardSize.width.dp)
+                                            .height(homeUiSize.posterCardSize.height.dp)
                                             .clip(RoundedCornerShape(6.dp))
                                             .animateItem(),
                                         sharedTransitionScope = sharedTransitionScope,
@@ -549,26 +575,28 @@ fun HomeScnContent(
                         LazyRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(260.dp),
+                                .height((homeUiSize.posterCardSize.height + 50).dp),
                             contentPadding = PaddingValues(horizontal = 15.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(todayAiringTvs.itemCount) { currentItem ->
                                 todayAiringTvs[currentItem]?.let { tv ->
                                     PosterCard(
-                                        id = "$currentItem airingTv",
+                                        id = "${tv.id} airingTv",
                                         posterImg = tv.posterPath,
+                                        textWidth = homeUiSize.posterCardSize.width,
                                         onClick = {
                                             trendTvOnClick(
-                                                "$currentItem airingTv",
+                                                tv.id,
                                                 tv.name,
-                                                tv.posterPath
+                                                tv.posterPath,
+                                                "airingTv"
                                             )
                                         },
                                         name = tv.name,
                                         modifier = Modifier
-                                            .width(140.dp)
-                                            .height(210.dp)
+                                            .width(homeUiSize.posterCardSize.width.dp)
+                                            .height(homeUiSize.posterCardSize.height.dp)
                                             .clip(RoundedCornerShape(6.dp))
                                             .animateItem(),
                                         sharedTransitionScope = sharedTransitionScope,
@@ -609,27 +637,88 @@ fun HomeScnContent(
 }
 
 
-@Preview
+@OptIn(ExperimentalSharedTransitionApi::class)
+@PreviewScreenSizes
 @Composable
 private fun HomeScnPrev() {
-    MinFlixTheme {
-        Box() {
-            Image(
-                painter = painterResource(id = R.drawable.bg_img),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .background(Color(0, 0, 0, 228))
-                    .fillMaxSize()
-            )
-            HomeScnContent(
-                paddingValues = PaddingValues(0.dp),
-                onTrendMovieDateSelect = {},
-                uiState = HomeUiState(),
-                onTrendTvDateSelect = {},
-                trendTvOnClick = { _, _, _ -> },
-                retryApiCall = {}
-            )
+    SharedTransitionLayout {
+        AnimatedContent(targetState = false, label = "") { s ->
+            s
+            Box {
+                Image(
+                    painter = painterResource(id = R.drawable.bg_img),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier
+                        .background(Color(0, 0, 0, 228))
+                        .fillMaxSize()
+                )
+                HomeScnContent(
+                    paddingValues = PaddingValues(0.dp),
+                    onTrendMovieDateSelect = {},
+                    uiState = HomeUiState(
+                        trendingTvState = MutableStateFlow(
+                            PagingData.from(
+                                data = listOf(
+                                    TrendingTvModels(
+                                        adult = false,
+                                        backdropPath = "/sample_backdrop_path.jpg",
+                                        firstAirDate = "2023-12-01",
+                                        genreIds = listOf(18, 10765), // Example: Drama, Sci-Fi
+                                        id = 56789,
+                                        mediaType = "tv",
+                                        name = "Sample TV Show",
+                                        originCountry = listOf("US"),
+                                        originalLanguage = "en",
+                                        originalName = "Original Sample Name",
+                                        overview = "This is a sample overview for a trending TV show.",
+                                        popularity = 87.65,
+                                        posterPath = "/sample_poster_path.jpg",
+                                        voteAverage = 8.3,
+                                        voteCount = 678
+                                    )
+                                )
+                            )
+                        ),
+                        trendingMovieState = MutableStateFlow(
+                            TrendingMovieState.Success(
+                                trendMovie = buildList<TrendingMovieModels> {
+                                    repeat(3) {
+                                        add(
+                                            TrendingMovieModels(
+                                                adult = false,
+                                                backdropPath = R.drawable.ic_launcher_background.toString(),
+                                                genreIds = listOf(
+                                                    28,
+                                                    12,
+                                                    878
+                                                ), // Example: Action, Adventure, Sci-Fi
+                                                id = 12345,
+                                                mediaType = "movie",
+                                                originalLanguage = "en",
+                                                originalTitle = "Sample Original Title",
+                                                overview = "This is a sample overview of the movie. It describes the plot in a few sentences.",
+                                                popularity = 123.45,
+                                                posterPath = "/sample_poster_path.jpg",
+                                                releaseDate = "2024-12-06",
+                                                title = "Sample Movie Title",
+                                                video = false,
+                                                voteAverage = 8.5,
+                                                voteCount = 1234
+                                            )
+                                        )
+                                    }
+                                }
+                            )
+                        )
+                    ),
+                    onTrendTvDateSelect = {},
+                    trendTvOnClick = { _, _, _, _ -> },
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedContentScope = this@AnimatedContent
+                )
+            }
         }
     }
 }
+

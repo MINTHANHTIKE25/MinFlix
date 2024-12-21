@@ -15,7 +15,7 @@ fun TrendingMoviesResponse.toDomain(): List<TrendingMovieModels> {
         TrendingMovieModels(
             adult = movies.adult ?: false,
             backdropPath = if (movies.backdropPath != null)
-                "http://image.tmdb.org/t/p/w500${movies.backdropPath}" else "",
+                "https://image.tmdb.org/t/p/original${movies.backdropPath}" else "",
             genreIds = movies.genreIds?.map {
                 it ?: 0
             }.orEmpty(),
@@ -26,7 +26,7 @@ fun TrendingMoviesResponse.toDomain(): List<TrendingMovieModels> {
             overview = movies.overview.orEmpty(),
             popularity = movies.popularity ?: 0.0,
             posterPath = if (movies.posterPath != null)
-                "http://image.tmdb.org/t/p/w500${movies.posterPath}" else "",
+                "https://image.tmdb.org/t/p/original${movies.posterPath}" else "",
             releaseDate = movies.releaseDate.orEmpty(),
             title = movies.title.orEmpty(),
             video = movies.video ?: false,

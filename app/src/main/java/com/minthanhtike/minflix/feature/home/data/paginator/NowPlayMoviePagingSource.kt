@@ -21,7 +21,7 @@ class NowPlayMoviePagingSource(
             .fold(
                 onSuccess = { movies ->
                     LoadResult.Page(
-                        data = movies.filter { it.posterPath.isNotEmpty() },
+                        data = movies.filter { it.posterPath.isNotEmpty() or it.title.isNotEmpty() }.distinct(),
                         prevKey = null,
                         nextKey = if (movies.isNotEmpty() and (nextPageNumber < 5))
                             nextPageNumber + 1 else null
