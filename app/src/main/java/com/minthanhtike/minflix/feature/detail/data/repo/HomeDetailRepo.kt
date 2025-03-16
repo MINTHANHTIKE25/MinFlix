@@ -1,17 +1,25 @@
 package com.minthanhtike.minflix.feature.detail.data.repo
 
-import com.minthanhtike.minflix.feature.detail.domain.model.MovieDetailModel
-import com.minthanhtike.minflix.feature.detail.domain.model.MovieImagesModel
-import com.minthanhtike.minflix.feature.detail.domain.model.TvDetailModel
-import com.minthanhtike.minflix.feature.detail.domain.model.TvImagesModel
+import androidx.paging.PagingData
+import com.minthanhtike.minflix.feature.detail.domain.model.HomeDetailCasterCrewModel
+import com.minthanhtike.minflix.feature.detail.domain.model.HomeDetailModel
+import com.minthanhtike.minflix.feature.detail.domain.model.HomeDetailRecommendModel
+import com.minthanhtike.minflix.feature.detail.domain.model.HomeDetailReviewModel
+import com.minthanhtike.minflix.feature.detail.domain.model.HomeDetailTrailerModel
+import kotlinx.coroutines.flow.Flow
 
 interface HomeDetailRepo {
 
-    suspend fun getMovieDetail(movieId:Int):Result<MovieDetailModel>
+    suspend fun getMovieDetail(movieId: Int): Result<HomeDetailModel>
 
-//    suspend fun getMovieImages(movieId: Int):Result<List<MovieImagesModel>>
+    suspend fun getCasterCrew(movieId: Int): Result<HomeDetailCasterCrewModel>
 
-    suspend fun getTvDetail(tvId:Int):Result<TvDetailModel>
+    suspend fun getMovieRecommendation(movieId: Int): Flow<PagingData<HomeDetailRecommendModel>>
 
-//    suspend fun getTvImages(seriesId:Int):Result<List<TvImagesModel>>
+    suspend fun getMovieReviews(movieId: Int):Flow<PagingData<HomeDetailReviewModel>>
+
+    suspend fun getTrailers(id: Int, type:String, seasonNo:Int):Result<HomeDetailTrailerModel>
+
+    suspend fun getTvDetail(tvId: Int): Result<HomeDetailModel>
+
 }

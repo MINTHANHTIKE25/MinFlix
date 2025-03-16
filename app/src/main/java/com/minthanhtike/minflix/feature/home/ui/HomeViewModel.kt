@@ -4,17 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import com.minthanhtike.minflix.feature.home.domain.HomeUseCase
 import com.minthanhtike.minflix.feature.home.domain.model.AiringTvTodayModel
 import com.minthanhtike.minflix.feature.home.domain.model.NowPlayMovieModel
 import com.minthanhtike.minflix.feature.home.domain.model.TrendingTvModels
-import com.minthanhtike.minflix.feature.home.ui.component.HomeUiSize
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -84,7 +81,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getNowPlayMovie() {
+    private fun getNowPlayMovie() {
         viewModelScope.launch {
             homeUseCase.getNowPlayMovies()
                 .distinctUntilChanged()
@@ -93,7 +90,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getAiringTvToday() {
+    private fun getAiringTvToday() {
         viewModelScope.launch {
             homeUseCase.getAiringTvToday()
                 .distinctUntilChanged()
@@ -102,16 +99,4 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-}
-
-// Or the appropriate type for your unique identifier
-
-fun <T> filterDuplicates(item: T): Boolean {
-    val seenItems = mutableSetOf<T>()
-    return if (seenItems.contains(item)) {
-        false // Duplicate found, exclude the item
-    } else {
-        seenItems.add(item)
-        true // New item, include it
-    }
 }

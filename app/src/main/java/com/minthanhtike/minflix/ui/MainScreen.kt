@@ -1,6 +1,5 @@
 package com.minthanhtike.minflix.ui
 
-import android.graphics.PorterDuff
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -9,37 +8,20 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.NavigationRailItemColors
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuite
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
@@ -49,18 +31,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -69,7 +47,7 @@ import com.minthanhtike.minflix.navigation.mainNavGraph.AppScreens
 import com.minthanhtike.minflix.navigation.mainNavGraph.FavouriteScreen
 import com.minthanhtike.minflix.navigation.mainNavGraph.HomeScreen
 import com.minthanhtike.minflix.navigation.mainNavGraph.MainNavSetUp
-import com.minthanhtike.minflix.navigation.mainNavGraph.Screens
+import com.minthanhtike.minflix.navigation.mainNavGraph.ScreensRoutes
 import com.minthanhtike.minflix.navigation.mainNavGraph.SearchScreen
 import com.minthanhtike.minflix.ui.component.MainBottomNavBar
 import com.minthanhtike.minflix.ui.component.MainTopAppBar
@@ -79,6 +57,7 @@ import com.minthanhtike.minflix.ui.theme.MinFlixTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+
     modifier: Modifier = Modifier,
 ) {
     var selectedNavItem by rememberSaveable {
@@ -89,23 +68,29 @@ fun MainScreen(
     val currentRoute by rememberSaveable(navBackStackEntry?.destination?.route) {
         mutableStateOf(navBackStackEntry?.destination?.route)
     }
-    val navSuiteType =
-        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(
         state = rememberTopAppBarState()
     )
+
+    val config = LocalConfiguration.current
+
+    val navSuiteType = if(config.screenHeightDp <= 480){
+        NavigationSuiteType.NavigationRail
+    }else {
+       NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
+    }
     //tracking the backstack and selecting the bottom navigation items
     navController.addOnDestinationChangedListener(
         listener = { controller, destination, arguments ->
             when (destination.route) {
-                Screens.HomeScn ->
+                ScreensRoutes.HomeScn ->
                     selectedNavItem = HomeScreen
 
-                Screens.SearchScn ->
+                ScreensRoutes.SearchScn ->
                     selectedNavItem = SearchScreen
 
-                Screens.FavScn ->
+                ScreensRoutes.FavScn ->
                     selectedNavItem = FavouriteScreen
 
             }
@@ -119,9 +104,9 @@ fun MainScreen(
         containerColor = Color(0, 0, 0, 228),
         topBar = {
             AnimatedVisibility(
-                visible = currentRoute.equals(Screens.HomeScn)
-                        or currentRoute.equals(Screens.SearchScn)
-                        or currentRoute.equals(Screens.FavScn),
+                visible = currentRoute.equals(ScreensRoutes.HomeScn)
+                        or currentRoute.equals(ScreensRoutes.SearchScn)
+                        or currentRoute.equals(ScreensRoutes.FavScn),
                 enter = expandIn(
                     animationSpec = tween(
                         durationMillis = 1000,
@@ -150,9 +135,9 @@ fun MainScreen(
         bottomBar = {
             if (navSuiteType == NavigationSuiteType.NavigationBar) {
                 AnimatedVisibility(
-                    visible = currentRoute.equals(Screens.HomeScn)
-                            or currentRoute.equals(Screens.SearchScn)
-                            or currentRoute.equals(Screens.FavScn),
+                    visible = currentRoute.equals(ScreensRoutes.HomeScn)
+                            or currentRoute.equals(ScreensRoutes.SearchScn)
+                            or currentRoute.equals(ScreensRoutes.FavScn),
                     enter = scaleIn(
                         animationSpec = tween(
                             durationMillis = 1000,
@@ -181,9 +166,9 @@ fun MainScreen(
                 when (navSuiteType) {
                     NavigationSuiteType.NavigationRail -> {
                         if (
-                            currentRoute.equals(Screens.HomeScn)
-                            or currentRoute.equals(Screens.SearchScn)
-                            or currentRoute.equals(Screens.FavScn)
+                            currentRoute.equals(ScreensRoutes.HomeScn)
+                            or currentRoute.equals(ScreensRoutes.SearchScn)
+                            or currentRoute.equals(ScreensRoutes.FavScn)
                         ) {
                             NavigationRail(
                                 containerColor = Color(0, 0, 0, 201)
@@ -251,6 +236,11 @@ fun MainScreen(
                         }
                     }
                 }
+            },
+            layoutType = if(config.screenHeightDp <= 480){
+                NavigationSuiteType.NavigationRail
+            }else {
+                NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
             }
         ) {
             Box {
@@ -261,7 +251,7 @@ fun MainScreen(
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier.fillMaxSize()
                 )
-                MainNavSetUp(padding = contentPadding, navController,navSuiteType)
+                MainNavSetUp(padding = contentPadding, navController, navSuiteType)
             }
         }
 

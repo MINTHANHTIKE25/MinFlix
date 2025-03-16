@@ -21,8 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.minthanhtike.minflix.common.TabItems
-import com.minthanhtike.minflix.feature.detail.domain.model.MovieDetailModel
-import com.minthanhtike.minflix.feature.favourite.ui.isSupportingPaneHidden
+import com.minthanhtike.minflix.feature.detail.domain.model.HomeDetailModel
+import com.minthanhtike.minflix.feature.detail.ui.modelAndState.HomeDetailRelatedInfos
+import com.minthanhtike.minflix.feature.detail.ui.modelAndState.HomeDetailUiState
 import com.minthanhtike.minflix.ui.component.LocalAnimatedContentScope
 import com.minthanhtike.minflix.ui.component.LocalSharedTransitionScope
 
@@ -38,15 +39,13 @@ fun HomeDetailScn(
     val sharedTransitionScope = LocalSharedTransitionScope.current
 
     val homeDetailUiState by homeDetailVm.homeDetailUiState.collectAsStateWithLifecycle()
-//    val homeImageState by detailVm.homeDetailImgState.collectAsStateWithLifecycle()
+    val homeDetailRelatedInfos by homeDetailVm.homeDetailRelatedInfos.collectAsStateWithLifecycle()
 
     val supportingPaneNav = rememberSupportingPaneScaffoldNavigator<Int>()
     val tabData = if (type.contains("Tv", true))
-        if (supportingPaneNav.isSupportingPaneHidden)
-            TabItems.entries else TabItems.entries.dropLast(1)
+        TabItems.entries
     else
-        if (supportingPaneNav.isSupportingPaneHidden)
-            TabItems.entries.drop(1) else TabItems.entries.dropLast(1)
+        TabItems.entries.drop(1)
 
 
     HomeDetailScnContent(
@@ -57,14 +56,11 @@ fun HomeDetailScn(
         sharedTransitionScope = sharedTransitionScope,
         homeDetailUiState = homeDetailUiState,
         tabData = tabData,
-        onTabSelect = { tabLabel ->
-            if (type.contains("Tv", true)) {
-                homeDetailVm.getTvOtherInfos(tabLabel)
-            } else {
-                homeDetailVm.getMovieOtherInfos(tabLabel)
-            }
+        onTabSelect = { tabAction ->
+            homeDetailVm.onTabSelection(tabAction)
         },
-        paneScaffoldNav = supportingPaneNav
+        paneScaffoldNav = supportingPaneNav,
+        homeDetailRelatedInfos = homeDetailRelatedInfos
     )
 }
 
@@ -77,9 +73,10 @@ fun HomeDetailScnContent(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     homeDetailUiState: HomeDetailUiState,
-    onTabSelect: (String) -> Unit,
+    onTabSelect: (HomeDetailAction) -> Unit,
     tabData: List<TabItems>,
-    paneScaffoldNav: ThreePaneScaffoldNavigator<Int>
+    paneScaffoldNav: ThreePaneScaffoldNavigator<Int>,
+    homeDetailRelatedInfos: HomeDetailRelatedInfos
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -104,7 +101,8 @@ fun HomeDetailScnContent(
                         sharedTransitionScope = sharedTransitionScope,
                         homeDetailUiState = homeDetailUiState,
                         onTabSelect = onTabSelect,
-                        tabData = tabData
+                        tabData = tabData,
+                        homeDetailRelatedInfos = homeDetailRelatedInfos
                     )
                 }
             },
@@ -118,7 +116,6 @@ fun HomeDetailScnContent(
             }
         )
     }
-
 
 
 }
@@ -139,44 +136,21 @@ private fun DetailScnPrev() {
                 animatedContentScope = this,
                 sharedTransitionScope = this@SharedTransitionLayout,
                 homeDetailUiState = HomeDetailUiState.Success(
-                    MovieDetailModel(
-                        adult = false,
-                        backdropPath = "backdrop/path",
-                        budget = 1000000,
-                        genres = listOf(MovieDetailModel.Genre(1, "Action")),
-                        homepage = "https://example.com",
-                        id = 1,
-                        originCountry = listOf("US"),
-                        originalLanguage = "en",
-                        originalTitle = "Original Title",
-                        overview = "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
-                                "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
-                                "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
-                                "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
-                                "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
-                                "mmmmmmmmmmmmmmmmmmmmmmmmasdfmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm" +
-                                "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmksdjhfasjasdfjhajshf" +
-                                "asmdfaskdjfkahjfihaowshfjaskj;fkjasdlkjf;daskjf;kjasdflo;;fkjdsl;fkjsa;ol" +
-                                "asdkfja;lskhjfds;okhfewadopifhjjasdoidsafl;kfdsjal;kfdasjd;lskja;ewkfjfdsja;dasfk" +
-                                "as;ldkfj;oafjsdo;j;asdoijfsadoijfsd;oifjdaasd;ijaso;ijfd;oawssijasdo;hijjhasdoifj ",
-                        popularity = 7.8,
-                        posterPath = "poster/path",
-                        releaseDate = "2024-12-06",
-                        revenue = 5000000,
-                        runtime = 120,
-                        status = "Released",
-                        tagline = "Tagline here",
-                        title = "Movie Title",
-                        video = false,
-                        voteAverage = 8.5,
-                        voteCount = 200,
-                        productionCompany = "Example Productions",
-                        movieImagesModel = emptyList()
+                    HomeDetailModel(
+                        title = "", rating = 0.0,
+                        companyName = "", backdropImg = "", overView = "",
+                        imagesList = emptyList(),
+                        releaseDate = "12-3-2001",
+                        spokenLang = listOf("English"),
+                        homePage = "https://www.home.com",
+                        productionCompany = listOf("Universal Pictures", "Sony Pictures"),
+                        budget = "3Millions"
                     )
                 ),
                 tabData = TabItems.entries,
                 onTabSelect = {},
-                paneScaffoldNav = rememberSupportingPaneScaffoldNavigator<Int>()
+                paneScaffoldNav = rememberSupportingPaneScaffoldNavigator<Int>(),
+                homeDetailRelatedInfos = HomeDetailRelatedInfos()
             )
         }
     }

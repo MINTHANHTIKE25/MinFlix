@@ -31,14 +31,11 @@ fun getHomeUiSize(): HomeUiSize {
     val config = LocalConfiguration.current
 
     val scnWidth = config.screenWidthDp.toDouble()
-    Log.wtf("scnWidth", "$scnWidth")
     val paddingMiddle = if (scnWidth !in 840.0..1000.0) scnWidth * 0.14 else scnWidth * 0.06
-    Log.wtf("paddingBetween", "$paddingMiddle")
+
     val firstLastPadding = if (scnWidth !in 840.0..1000.0) scnWidth * 0.2 else scnWidth * 0.1
-    Log.wtf("paddingStartEnd", "$firstLastPadding")
 
 
-    Log.wtf("orientaion","${config.orientation}")
     return when (currentWindowSizeInfo().widthSizeClass) {
         WindowWidthSizeClass.Compact -> {
             HomeUiSize(
@@ -60,14 +57,14 @@ fun getHomeUiSize(): HomeUiSize {
 
         WindowWidthSizeClass.Medium -> {
             HomeUiSize(
-                pagerItemHeight = 0.8f,
-                pagerHeight = 0.5f,
+                pagerItemHeight = 0.9f,
+                pagerHeight = if (config.screenHeightDp < 480) 1.5f else 0.5f,
                 pagerContentPadding = PagerContentPadding(
-                    firstItemPaddingEnd = 180,
+                    firstItemPaddingEnd = if (config.screenHeightDp < 480) 224 else 124,
                     firstItemPaddingStart = 20,
-                    lastItemPaddingStart = 180,
+                    lastItemPaddingStart = if (config.screenHeightDp < 480) 224 else 124,
                     lastItemPaddingEnd = 20,
-                    horizontalPadding = 62
+                    horizontalPadding = if (config.screenHeightDp < 480)112 else 62
                 ),
                 posterCardSize = PosterCardSize(
                     width = 180,
@@ -75,9 +72,10 @@ fun getHomeUiSize(): HomeUiSize {
                 )
             )
         }
+
         WindowWidthSizeClass.Expanded -> {
             HomeUiSize(
-                pagerHeight = when(config.orientation) {
+                pagerHeight = when (config.orientation) {
                     Configuration.ORIENTATION_PORTRAIT -> 0.4f
                     Configuration.ORIENTATION_LANDSCAPE -> 0.7f
                     else -> 0.6f

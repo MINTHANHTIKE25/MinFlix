@@ -22,53 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 
-@Composable
-fun ShimmerEffect(
-    modifier: Modifier,
-    widthOfShadowBrush: Int = 500,
-    angleOfAxisY: Float = 270f,
-    durationMillis: Int = 1000,
-) {
-    val shimmerColors = listOf(
-        Color.Gray.copy(alpha = 0.3f),
-        Color.Gray.copy(alpha = 0.5f),
-        Color.Gray.copy(alpha = 1.0f),
-        Color.Gray.copy(alpha = 0.5f),
-        Color.Gray.copy(alpha = 0.3f),
-    )
-
-    val transition = rememberInfiniteTransition(label = "")
-
-    val translateAnimation = transition.animateFloat(
-        initialValue = 0f,
-        targetValue = (durationMillis + widthOfShadowBrush).toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = durationMillis,
-                easing = LinearEasing,
-            ),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "Shimmer loading animation",
-    )
-
-    val brush = Brush.linearGradient(
-        colors = shimmerColors,
-        start = Offset(x = translateAnimation.value - widthOfShadowBrush, y = 0.0f),
-        end = Offset(x = translateAnimation.value, y = angleOfAxisY),
-    )
-
-    Box(
-        modifier = modifier
-    ) {
-        Spacer(
-            modifier = Modifier
-                .matchParentSize()
-                .background(brush)
-        )
-    }
-}
-
 fun Modifier.shimmerEffect(isLoading:Boolean): Modifier = if (isLoading)composed {
     var size by remember {
         mutableStateOf(IntSize.Zero)

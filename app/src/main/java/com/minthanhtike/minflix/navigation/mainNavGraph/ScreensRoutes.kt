@@ -1,12 +1,11 @@
 package com.minthanhtike.minflix.navigation.mainNavGraph
 
 import android.os.Parcelable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
 
-object Screens {
+object ScreensRoutes {
     const val FavScn = "com.minthanhtike.minflix.navigation.mainNavGraph.FavouriteScreen"
     const val HomeScn = "com.minthanhtike.minflix.navigation.mainNavGraph.HomeScreen"
     const val DetailScn = "com.minthanhtike.minflix.navigation.mainNavGraph.DetailScreen"

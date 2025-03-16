@@ -9,6 +9,9 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {}
+    }
     namespace = "com.minthanhtike.minflix"
     compileSdk = 34
 
@@ -33,12 +36,17 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("String", "API_URL", "\"https://api.themoviedb.org/\"")
-            buildConfigField("String", "IMAGE_URL", "\"https://image.tmdb.org/t/p/w500/\"")
+            buildConfigField("String", "IMG_URL_W500", "\"https://image.tmdb.org/t/p/w500/\"")
+            buildConfigField("String", "IMG_URL_W780", "\"https://image.tmdb.org/t/p/w780/\"")
+            buildConfigField("String", "IMG_URL_W1280", "\"https://image.tmdb.org/t/p/w1280/\"")
+            buildConfigField("String", "IMG_URL_ORIGINAL", "\"https://image.tmdb.org/t/p/original/\"")
             buildConfigField(
                 "String",
                 "API_KEY",
-                ""
+                "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjN2U4NzI0NzFjMGMyZGRlNzYyY2M5NmJhNjdlYTU1YiIsIm5iZiI6MTczMTkyNjQ4OC42NjY1OTUsInN1YiI6IjY1NzI5NDM5MjExY2U1MDBmZWNjYjcxZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ruAd2ywnmDwf-bZETR1NRzHzAbJfmcz-8TmvuCWDaHI\""
             )
+            signingConfig = signingConfigs.getByName("release")
+
         }
 
         debug {
@@ -46,11 +54,14 @@ android {
             isDebuggable = true
             applicationIdSuffix =".debug"
             buildConfigField("String", "API_URL", "\"https://api.themoviedb.org/\"")
-            buildConfigField("String", "IMAGE_URL", "\"https://image.tmdb.org/t/p/w500/\"")
+            buildConfigField("String", "IMG_URL_W500", "\"https://image.tmdb.org/t/p/w500/\"")
+            buildConfigField("String", "IMG_URL_W780", "\"https://image.tmdb.org/t/p/w780/\"")
+            buildConfigField("String", "IMG_URL_W1280", "\"https://image.tmdb.org/t/p/w1280/\"")
+            buildConfigField("String", "IMG_URL_ORIGINAL", "\"https://image.tmdb.org/t/p/original/\"")
             buildConfigField(
                 "String",
                 "API_KEY",
-                ""
+                "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjN2U4NzI0NzFjMGMyZGRlNzYyY2M5NmJhNjdlYTU1YiIsIm5iZiI6MTczMTkyNjQ4OC42NjY1OTUsInN1YiI6IjY1NzI5NDM5MjExY2U1MDBmZWNjYjcxZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ruAd2ywnmDwf-bZETR1NRzHzAbJfmcz-8TmvuCWDaHI\""
             )
         }
     }
@@ -140,5 +151,6 @@ dependencies {
     implementation(libs.androidx.adaptive.layout)
     implementation(libs.androidx.adaptive.navigation)
 
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:12.1.1")
 
 }

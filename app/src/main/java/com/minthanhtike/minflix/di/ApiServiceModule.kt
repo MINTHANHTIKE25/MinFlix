@@ -41,10 +41,6 @@ object ApiServiceModule {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
             }
-            install(Auth) {
-                bearer {
-                }
-            }
             install(Logging){
                 level = LogLevel.BODY
                 logger = object : Logger {

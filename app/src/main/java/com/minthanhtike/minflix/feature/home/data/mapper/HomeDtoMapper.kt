@@ -1,5 +1,6 @@
 package com.minthanhtike.minflix.feature.home.data.mapper
 
+import com.minthanhtike.minflix.BuildConfig
 import com.minthanhtike.minflix.feature.home.data.model.AiringTvTodayResponse
 import com.minthanhtike.minflix.feature.home.data.model.NowPlayingMovieResponse
 import com.minthanhtike.minflix.feature.home.data.model.TrendingMoviesResponse
@@ -15,7 +16,7 @@ fun TrendingMoviesResponse.toDomain(): List<TrendingMovieModels> {
         TrendingMovieModels(
             adult = movies.adult ?: false,
             backdropPath = if (movies.backdropPath != null)
-                "https://image.tmdb.org/t/p/original${movies.backdropPath}" else "",
+                BuildConfig.IMG_URL_ORIGINAL + movies.backdropPath else "",
             genreIds = movies.genreIds?.map {
                 it ?: 0
             }.orEmpty(),
@@ -26,7 +27,7 @@ fun TrendingMoviesResponse.toDomain(): List<TrendingMovieModels> {
             overview = movies.overview.orEmpty(),
             popularity = movies.popularity ?: 0.0,
             posterPath = if (movies.posterPath != null)
-                "https://image.tmdb.org/t/p/original${movies.posterPath}" else "",
+                BuildConfig.IMG_URL_ORIGINAL + movies.posterPath else "",
             releaseDate = movies.releaseDate.orEmpty(),
             title = movies.title.orEmpty(),
             video = movies.video ?: false,
@@ -41,7 +42,7 @@ fun TrendingTvResponse.toDomain(): List<TrendingTvModels> {
         TrendingTvModels(
             adult = tv.adult ?: false,
             backdropPath = if (tv.backdropPath != null)
-                "http://image.tmdb.org/t/p/w500${tv.backdropPath}" else "",
+                BuildConfig.IMG_URL_W500 + tv.backdropPath else "",
             genreIds = tv.genreIds?.map {
                 it ?: 0
             }.orEmpty(),
@@ -51,7 +52,7 @@ fun TrendingTvResponse.toDomain(): List<TrendingTvModels> {
             overview = tv.overview.orEmpty(),
             popularity = tv.popularity ?: 0.0,
             posterPath = if (tv.posterPath != null)
-                "http://image.tmdb.org/t/p/w500${tv.posterPath}" else "",
+                BuildConfig.IMG_URL_W500 + tv.posterPath else "",
             voteAverage = tv.voteAverage ?: 0.0,
             firstAirDate = tv.firstAirDate.orEmpty(),
             name = tv.name.orEmpty(),
@@ -67,7 +68,7 @@ fun NowPlayingMovieResponse.toDomain(): List<NowPlayMovieModel> {
         NowPlayMovieModel(
             adult = movie.adult ?: false,
             backdropPath = if (movie.backdropPath != null)
-                "http://image.tmdb.org/t/p/w500${movie.backdropPath}" else "",
+                BuildConfig.IMG_URL_W500 + movie.backdropPath else "",
             genreIds = movie.genreIds?.map { it ?: -1 }.orEmpty(),
             id = movie.id!!,
             originalLanguage = movie.originalLanguage.orEmpty(),
@@ -75,7 +76,7 @@ fun NowPlayingMovieResponse.toDomain(): List<NowPlayMovieModel> {
             overview = movie.overview.orEmpty(),
             popularity = movie.popularity ?: 0.0,
             posterPath = if (movie.posterPath != null)
-                "http://image.tmdb.org/t/p/w500${movie.posterPath}" else "",
+                BuildConfig.IMG_URL_W500 + movie.posterPath else "",
             releaseDate = movie.releaseDate.orEmpty(),
             title = movie.title.orEmpty(),
             video = movie.video ?: false,
@@ -92,7 +93,7 @@ fun AiringTvTodayResponse.toDomain(): List<AiringTvTodayModel> {
         AiringTvTodayModel(
             adult = tv.adult ?: false,
             backdropPath = if (tv.backdropPath != null)
-                "http://image.tmdb.org/t/p/w500${tv.backdropPath}" else "",
+                BuildConfig.IMG_URL_W500 + tv.backdropPath else "",
             firstAirDate = tv.firstAirDate.orEmpty(),
             genreIds = tv.genreIds?.map { it ?: -1 }.orEmpty(),
             id = tv.id!!,
@@ -103,7 +104,7 @@ fun AiringTvTodayResponse.toDomain(): List<AiringTvTodayModel> {
             overview = tv.overview.orEmpty(),
             popularity = tv.popularity ?: 0.0,
             posterPath = if (tv.posterPath != null)
-                "http://image.tmdb.org/t/p/w500${tv.posterPath}" else "",
+                BuildConfig.IMG_URL_W500+tv.posterPath else "",
             voteAverage = tv.voteAverage ?: 0.0,
             voteCount = tv.voteCount ?: 0
         )

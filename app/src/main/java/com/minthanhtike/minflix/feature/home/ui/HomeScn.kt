@@ -42,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,6 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,7 +129,7 @@ fun HomeScnContent(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope
 ) {
-    var trendMovieTime by remember {
+    var trendMovieTime by rememberSaveable {
         mutableStateOf("day")
     }
     val trendingMovieState by uiState.trendingMovieState
@@ -638,7 +640,7 @@ fun HomeScnContent(
 
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@PreviewScreenSizes
+@Preview(device = "spec:parent=pixel_5")
 @Composable
 private fun HomeScnPrev() {
     SharedTransitionLayout {

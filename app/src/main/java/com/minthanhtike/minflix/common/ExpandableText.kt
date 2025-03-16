@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.SpanStyle
@@ -60,7 +61,7 @@ fun ExpandableText(
     showLessStyle: SpanStyle = showMoreStyle,
     textAlign: TextAlign? = null,
     fontFamily: FontFamily,
-    fontSize: TextUnit = 12.sp
+    fontSize: TextUnit = 12.sp,
 ) {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
     var clickable by rememberSaveable { mutableStateOf(false) }

@@ -23,10 +23,10 @@ class TrendingTvPagingSource(
                 onSuccess = { movies ->
                     LoadResult.Page(
                         data = movies
-                            .filter { it.posterPath.isNotEmpty() or it.name.isNotEmpty() }
+                            .filter { it.posterPath.isNotEmpty() and it.name.isNotEmpty() }
                             .distinctBy { it.id },
                         prevKey = null,
-                        nextKey = if (movies.isNotEmpty() and (page < 7))
+                        nextKey = if (movies.isNotEmpty() and (page < 10))
                             page + 1 else null
                     )
                 },

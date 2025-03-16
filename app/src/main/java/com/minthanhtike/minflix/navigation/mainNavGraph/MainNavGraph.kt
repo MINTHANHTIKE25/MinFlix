@@ -50,7 +50,7 @@ fun MainNavSetUp(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Start,
                                 animationSpec =
                                 tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 ),
                                 initialOffset = { x -> -x }
@@ -61,7 +61,7 @@ fun MainNavSetUp(
                             slideInHorizontally(
                                 initialOffsetX = { x -> x},
                                 animationSpec = tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 )
                             )
@@ -75,7 +75,7 @@ fun MainNavSetUp(
                                 towards = AnimatedContentTransitionScope.SlideDirection.End,
                                 animationSpec =
                                 tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 ),
                                 targetOffset = { x -> x }
@@ -86,7 +86,7 @@ fun MainNavSetUp(
                             slideOutHorizontally(
                                 targetOffsetX = {x -> x},
                                 animationSpec = tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 )
                             )
@@ -100,7 +100,7 @@ fun MainNavSetUp(
                                 towards = AnimatedContentTransitionScope.SlideDirection.End,
                                 animationSpec =
                                 tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 ),
                                 initialOffset = { x -> x }
@@ -111,7 +111,7 @@ fun MainNavSetUp(
                             slideInHorizontally(
                                 initialOffsetX = { x -> x},
                                 animationSpec = tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 )
                             )
@@ -125,7 +125,7 @@ fun MainNavSetUp(
                                 towards = AnimatedContentTransitionScope.SlideDirection.Start,
                                 animationSpec =
                                 tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 ),
                                 targetOffset = { x -> x }
@@ -136,7 +136,7 @@ fun MainNavSetUp(
                             slideOutHorizontally(
                                 targetOffsetX = {x -> x},
                                 animationSpec = tween(
-                                    durationMillis = 2000,
+                                    durationMillis = 500,
                                     easing = FastOutSlowInEasing
                                 )
                             )

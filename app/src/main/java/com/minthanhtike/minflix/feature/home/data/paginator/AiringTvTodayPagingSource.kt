@@ -20,7 +20,7 @@ class AiringTvTodayPagingSource(
         return homeRemoteDataSource.getAirTodayTv(nextPageNumber)
             .fold(
                 onSuccess = { tv ->
-                    val result = tv.filter { it.posterPath.isNotEmpty() or it.name.isNotEmpty() }
+                    val result = tv.filter { it.posterPath.isNotEmpty() and it.name.isNotEmpty() }
                         .distinct()
                     LoadResult.Page(
                         data = result,

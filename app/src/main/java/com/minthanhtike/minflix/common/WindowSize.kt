@@ -7,6 +7,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 
+/**
+ * The function that generate the window size class
+ */
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun currentWindowSizeInfo(): WindowSizeClass {
