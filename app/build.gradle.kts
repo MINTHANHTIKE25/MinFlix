@@ -43,7 +43,7 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjN2U4NzI0NzFjMGMyZGRlNzYyY2M5NmJhNjdlYTU1YiIsIm5iZiI6MTczMTkyNjQ4OC42NjY1OTUsInN1YiI6IjY1NzI5NDM5MjExY2U1MDBmZWNjYjcxZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ruAd2ywnmDwf-bZETR1NRzHzAbJfmcz-8TmvuCWDaHI\""
+                ""
             )
             signingConfig = signingConfigs.getByName("release")
 
@@ -61,7 +61,7 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjN2U4NzI0NzFjMGMyZGRlNzYyY2M5NmJhNjdlYTU1YiIsIm5iZiI6MTczMTkyNjQ4OC42NjY1OTUsInN1YiI6IjY1NzI5NDM5MjExY2U1MDBmZWNjYjcxZiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ruAd2ywnmDwf-bZETR1NRzHzAbJfmcz-8TmvuCWDaHI\""
+                ""
             )
         }
     }
