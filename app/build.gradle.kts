@@ -31,6 +31,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -43,7 +44,7 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                ""
+                "TESTING"
             )
             signingConfig = signingConfigs.getByName("release")
 
@@ -61,7 +62,7 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                ""
+                "TESTING"
             )
         }
     }
