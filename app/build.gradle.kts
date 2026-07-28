@@ -44,7 +44,7 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                "TESTING"
+                "\"TESTING\""
             )
             signingConfig = signingConfigs.getByName("release")
 
@@ -62,7 +62,7 @@ android {
             buildConfigField(
                 "String",
                 "API_KEY",
-                "TESTING"
+                "\"TESTING\""
             )
         }
     }
